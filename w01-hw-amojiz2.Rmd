@@ -1,0 +1,244 @@
+---
+title: "Week 1 - Homework"
+author: "STAT 420, Summer 2017, Ali Mojiz"
+---
+
+## Exercise 1
+
+For this exercise, we will use the `diabetes` dataset from the `faraway` package.
+
+**(a)** Install and load the `faraway` package. **Do not** include the installation command in your `.Rmd` file. (If you do it will install the package every time you knit your file.) **Do** include the command to load the package into your environment.
+
+**(b)** Coerce the data to be a tibble instead of a data frame. (You will need the `tibble` package to do so.) How many observations are in this dataset? How many variables? Who are the individuals in this dataset?
+
+**(c)** Which variables are factor variables?
+
+**(d)** What is the mean [HDL](https://en.wikipedia.org/wiki/High-density_lipoprotein) level (High Density Lipoprotein) of individuals in this sample?
+
+**(e)** What is the standard deviation of total cholesterol of individuals in this sample?
+
+**(f)** What is the range of ages of individuals in this sample?
+
+**(g)** What is the mean HDL of females in this sample?
+
+**(h)** Create a scatter plot of HDL (y-axis) vs weight (x-axis). Use a non-default color for the points. (Also, be sure to give the plot a title and label the axes appropriately.) Based on the scatter plot, does there seem to be a relationship between the two variables? Briefly explain.
+
+**(i)** Create a scatter plot of total cholesterol (y-axis) vs weight (x-axis). Use a non-default color for the points. (Also, be sure to give the plot a title and label the axes appropriately.) Based on the scatter plot, does there seem to be a relationship between the two variables? Briefly explain.
+
+**(j)** Create side-by-side boxplots for HDL by gender. Use non-default colors for the plot. (Also, be sure to give the plot a title and label the axes appropriately.) Based on the boxplot, does there seem to be a difference between HDL level and gender? Briefly explain.
+
+
+
+##Exercise 1 Solution
+
+##a and b
+```{r tibble, echo=TRUE}
+library(faraway)
+data(diabetes)
+library(tibble)
+diabetes<-as.tibble(diabetes)
+nrow(diabetes)
+ncol(diabetes)
+head(diabetes)
+```
+
+These are 403 Afircan Americans who were interviewed in a study to understand the prevalence of obesity, diabetes, and other cardiovascular risk factors in central Virginia.
+
+##c
+
+```{r factor,echo=TRUE}
+f<-sapply(diabetes,is.factor)
+which(f)
+```
+
+##d
+
+```{r,echo=TRUE}
+mean(na.omit(diabetes$hdl))
+```
+
+##e
+
+```{r,echo=TRUE}
+sd(na.omit(diabetes$chol))
+```
+
+##f
+
+```{r,echo=TRUE}
+range = max(diabetes$age)-min(diabetes$age)
+range
+```
+
+##g
+
+```{r,echo=TRUE}
+mean(diabetes[which(diabetes$gender=="female"),]$hdl)
+```
+
+##h
+
+```{r,echo=TRUE}
+plot(diabetes$weight,diabetes$hdl,main = "Plot of WEIGHT vs HDL",xlab = "Weight", ylab = "High Density Lipoprotein",col="red")
+```
+
+From the graph, it can be inferred that as weight increases, HDL decreases.
+
+##i
+
+```{r,echo=TRUE}
+plot(diabetes$weight,diabetes$chol,main = "Plot of WEIGHT vs Cholestrol",xlab = "Weight", ylab = "Total Cholesterol",col="blue")
+```
+There doesn't seem to be a relationship between the two variables.
+
+##j
+
+```{r,echo=TRUE}
+par(mfrow=c(1,2))
+boxplot(diabetes[which(diabetes$gender=="female"),]$hdl,col = "blue",main="Boxplot for HDL w.r.t Females")
+boxplot(diabetes[which(diabetes$gender=="male"),]$hdl,col="red",main="Boxplot for HDL w.r.t Males")
+```
+
+The median seems to be the same for male and female. However, HDL in Males has a higher variance. Outliers seem to exist in the dataset as far as HDL for females is concerned. 
+
+
+## Exercise 2
+
+For this exercise we will use the data stored in [`nutrition.csv`](nutrition.csv). It contains the nutritional values per serving size for a large variety of foods as calculated by the USDA. It is a cleaned version totaling 5138 observations and is current as of September 2015.
+
+The variables in the dataset are:
+
+- `ID` 
+- `Desc` - Short description of food
+- `Water` - in grams
+- `Calories` - in kcal
+- `Protein` - in grams
+- `Fat` - in grams
+- `Carbs` - Carbohydrates, in grams
+- `Fiber` - in grams
+- `Sugar` - in grams
+- `Calcium` - in milligrams
+- `Potassium` - in milligrams
+- `Sodium` - in milligrams
+- `VitaminC` - Vitamin C, in milligrams
+- `Chol` - Cholesterol, in milligrams
+- `Portion` - Description of standard serving size used in analysis
+
+**(a)** Create a histogram of `Calories`. Do not modify `R`'s default bin selection. Make the plot presentable. Describe the shape of the histogram. Do you notice anything unusual?
+
+**(b)** Create a scatter plot of calories (y-axis) vs protein (x-axis). Make the plot presentable. Do you notice any trends? Do you think that knowing only the protein content of a food, you could make a good prediction of the calories in the food?
+
+**(c)** Create a scatter plot of `Calories` (y-axis) vs `4 * Protein + 4 * Carbs + 9 * Fat + 2 * Fiber` (x-axis). Make the plot presentable. You will either need to add a new variable to the data frame, or, use the `I()` function in your formula in the call to `plot()`. If you are at all familiar with nutrition, you may realize that this formula calculates the calorie count based on the protein, carbohydrate, and fat values. You'd expect then that the result here is a straight line. Is it? If not, can you think of any reasons why it is not?
+
+##Exercise 2 Solution
+
+```{r, echo=TRUE}
+nutrition<-read.csv("nutrition.csv")
+```
+
+##a
+```{r,echo=TRUE}
+hist(nutrition$Calories,main = "Histogram for Calories",xlab = "Calories",col="blue")
+```
+
+From the shape, most of the data contains low calories count. As the count of calories increases, frequency decreases. The histogram shows a rightly skewed behavior.
+
+##b
+```{r,echo=TRUE}
+plot(nutrition$Protein,nutrition$Calories,col="blue",xlab = "Protein",ylab = "Calories",main = "Plot of PROTEIN vs CALORIES")
+
+```
+The data is concentrated for low protein values with the calorie content accordingly. As protein increases, the calorie content stays between 200-400. It would not be a good idea to make a good prediction of the calorie content if the protein is known, using this graph. The data needs to be spread across all protein values and not concentrated for a specific range of values.
+
+
+##c
+
+```{r, echo=TRUE}
+plot(I(4*nutrition$Protein+4*nutrition$Carbs+9*nutrition$Fat+2*nutrition$Fiber),nutrition$Calories,main="Calorie Counter w.r.t Fat,Carbs,Protein,Fiber vs Calories",ylab = "Calories",xlab = "Calorie Counter",col="brown")
+```
+
+Yes. It is a straight line.
+
+## Exercise 3
+
+For each of the following parts, use the following vectors:
+
+```{r}
+a = 1:10
+b = 10:1
+c = rep(1, times = 10)
+d = 2 ^ (1:10)
+```
+
+**(a)** Write a function called `sum_of_squares`.
+
+- Arguments:
+    - A vector of numeric data `x`.
+- Output:
+    - The sum of the squares of the elements of the vector. $\sum_{i = 1}^n x_i^2$
+    
+Provide your function, as well as the result of running the following code:
+
+```{r, eval = FALSE}
+sum_of_squares(x = a)
+sum_of_squares(x = c(c, d))
+```
+
+**(b)** Write a function called `rms_diff`.
+
+- Arguments:
+    - A vector of numeric data `x`.
+    - A vector of numeric data `y`.
+- Output:
+    - $\sqrt{\frac{1}{n}\sum_{i = 1}^n (x_i - y_i)^{2}}$
+    
+Provide your function, as well as the result of running the following code:
+
+```{r, eval = FALSE}
+rms_diff(x = a, y = b)
+rms_diff(x = d, y = c)
+rms_diff(x = d, y = 1)
+rms_diff(x = a, y = 0) ^ 2 * length(a)
+```
+
+
+##Exercise 3 Solution
+
+##a
+
+```{r,echo=TRUE}
+sum_of_squares<-function(x)
+{
+  for(i in 1:length(x))
+    {x[i]=sum(x[i]^2)
+    sum(x)}
+}
+```
+```{r, echo=TRUE}
+sum_of_squares(x = a)
+sum_of_squares(x = c(c, d))
+```
+
+##b
+
+```{r,echo=TRUE}
+rms_diff <- function(x,y)
+{
+for (i in 1:length(x))
+{
+x[i]=sum((x[i]-y[i])^2)
+b=sum(x)
+r=sqrt(1/length(x)*b)
+return(r)
+}
+}
+```
+
+
+```{r, echo=TRUE}
+rms_diff(x = a, y = b)
+rms_diff(x = d, y = c)
+rms_diff(x = d, y = 1)
+rms_diff(x = a, y = 0) ^ 2 * length(a)
+```
+
